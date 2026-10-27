@@ -1,3 +1,4 @@
+# Fork-only runner/checkout mirror. Original validation steps are retained.
 name: Js
 run-name: ${{ github.event.head_commit.message || github.event.pull_request.title || format('{0} · {1}', github.ref_name, github.sha) }}
 
@@ -20,7 +21,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: [ self-hosted, linux, x64, javascript ]
+    runs-on: ubuntu-latest
     if: ${{ !startsWith(github.event.head_commit.message, 'Update changelog for') && !startsWith(github.event.head_commit.message, '[Automated changes]') && !contains(github.event.head_commit.message, 'Merge branch ''master'' of https://github.com/ccxt/ccxt') }}
     timeout-minutes: 30
     steps:
@@ -47,9 +48,15 @@ jobs:
         permission-contents: write
     - uses: actions/checkout@v6
       with:
+        ref: '92d3ccf2e865da4123c2bd62ba1c9007f818c04c'
         fetch-depth: 2
         clean: false
         token: ${{ github.ref == 'refs/heads/master' && steps.app-token.outputs.token || github.token }}
+    - name: Fork mirror verify adapter revision
+      run: |
+        actual="$(git rev-parse HEAD)"
+        test "$actual" = "92d3ccf2e865da4123c2bd62ba1c9007f818c04c"
+        echo "Verified adapter head: $actual"
     - name: Skip Automated Push Commits
       id: check_commit
       run: |
@@ -70,6 +77,8 @@ jobs:
       run: git ls-files | grep binaries
     - name: Install npm dependencies
       run: npm ci --include=dev
+    - name: Fork mirror use project binaries
+      run: echo "$GITHUB_WORKSPACE/node_modules/.bin" >> "$GITHUB_PATH"
     - name: Test base utility lint coverage
       run: node -r ./build/use-typescript6.cjs --test build/tests/test.eslint-base-functions.mjs
     - name: Debug files changes
@@ -230,7 +239,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: '92d3ccf2e865da4123c2bd62ba1c9007f818c04c'
           clean: false
+      - name: Fork mirror verify adapter revision
+        run: |
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "92d3ccf2e865da4123c2bd62ba1c9007f818c04c"
+          echo "Verified adapter head: $actual"
       - name: Download shared_env
         uses: actions/download-artifact@v4
         with:
@@ -248,6 +263,8 @@ jobs:
           cache: 'npm'
       - name: Install npm dependencies
         run: npm ci --include=dev
+      - name: Fork mirror use project binaries
+        run: echo "$GITHUB_WORKSPACE/node_modules/.bin" >> "$GITHUB_PATH"
       - name: Export exchanges
         run: npm run export-exchanges
       - name: 🔎 Check Runner IP
