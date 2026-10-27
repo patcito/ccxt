@@ -35,14 +35,14 @@ jobs:
         permission-contents: write
     - uses: actions/checkout@v6
       with:
-        ref: '54b3f3a936db84c3b667586f3f3b5021cbd3e719'
+        ref: '7942ec5fee8b615065d0f34642d35f022909f673'
         fetch-depth: 2
         clean: false
         token: ${{ github.ref == 'refs/heads/master' && steps.app-token.outputs.token || github.token }}
     - name: Fork mirror verify adapter revision
       run: |
         actual="$(git rev-parse HEAD)"
-        test "$actual" = "54b3f3a936db84c3b667586f3f3b5021cbd3e719"
+        test "$actual" = "7942ec5fee8b615065d0f34642d35f022909f673"
         echo "Verified adapter head: $actual"
     - name: Skip Automated Push Commits
       id: check_commit
@@ -203,12 +203,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: '54b3f3a936db84c3b667586f3f3b5021cbd3e719'
+          ref: '7942ec5fee8b615065d0f34642d35f022909f673'
           clean: false
       - name: Fork mirror verify adapter revision
         run: |
           actual="$(git rev-parse HEAD)"
-          test "$actual" = "54b3f3a936db84c3b667586f3f3b5021cbd3e719"
+          test "$actual" = "7942ec5fee8b615065d0f34642d35f022909f673"
           echo "Verified adapter head: $actual"
       - name: Download shared_env
         uses: actions/download-artifact@v4
